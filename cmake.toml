@@ -1,0 +1,110 @@
+# Reference: https://build-cpp.github.io/cmkr/cmake-toml
+[project]
+name = "zlib"
+languages = ["C"]
+include-after = ["cmake/checks.cmake", "cmake/version.cmake"]
+
+[options]
+ASM686 = false
+AMD64 = false
+BUILD_SHARED_LIBS = false
+ZLIB_BUILD_EXAMPLE = true
+SKIP_INSTALL_LIBRARIES = false
+SKIP_INSTALL_ALL = false
+
+[conditions]
+shared = "BUILD_SHARED_LIBS"
+static = "NOT BUILD_SHARED_LIBS"
+example = "ZLIB_BUILD_EXAMPLE"
+install = "NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL"
+
+[target.zlib_common]
+type = "interface"
+msvc.compile-options = ["/MP"]
+alias = "zlib::common"
+
+[target.zlib]
+type = "shared"
+condition = "shared"
+alias = "ZLIB::ZLIB"
+sources = [
+    "adler32.c",
+    "compress.c",
+    "crc32.c",
+    "deflate.c",
+    "gzclose.c",
+    "gzlib.c",
+    "gzread.c",
+    "gzwrite.c",
+    "inflate.c",
+    "infback.c",
+    "inftrees.c",
+    "inffast.c",
+    "trees.c",
+    "uncompr.c",
+    "zutil.c",
+]
+headers = [
+    "crc32.h",
+    "deflate.h",
+    "gzguts.h",
+    "inffast.h",
+    "inffixed.h",
+    "inflate.h",
+    "inftrees.h",
+    "trees.h",
+    "zutil.h",
+]
+link-libraries = ["zlib::common"]
+include-directories = [".", "${CMAKE_CURRENT_BINARY_DIR}"]
+
+[target.zlibstatic]
+type = "static"
+condition = "static"
+alias = "ZLIB::ZLIB"
+sources = [
+    "adler32.c",
+    "compress.c",
+    "crc32.c",
+    "deflate.c",
+    "gzclose.c",
+    "gzlib.c",
+    "gzread.c",
+    "gzwrite.c",
+    "inflate.c",
+    "infback.c",
+    "inftrees.c",
+    "inffast.c",
+    "trees.c",
+    "uncompr.c",
+    "zutil.c",
+]
+headers = [
+    "crc32.h",
+    "deflate.h",
+    "gzguts.h",
+    "inffast.h",
+    "inffixed.h",
+    "inflate.h",
+    "inftrees.h",
+    "trees.h",
+    "zutil.h",
+]
+link-libraries = ["zlib::common"]
+include-directories = [".", "${CMAKE_CURRENT_BINARY_DIR}"]
+
+[target.zlibexample]
+type = "executable"
+condition = "example"
+sources = [
+    "test/example.c",
+]
+headers = []
+link-libraries = ["ZLIB::ZLIB"]
+
+[[install]]
+condition = "install"
+targets = ["zlib", "zlibstatic"]
+destination = "bin"
+configs = ["Release", "Debug"]
+optional = true
